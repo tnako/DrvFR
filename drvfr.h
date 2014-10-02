@@ -138,7 +138,7 @@ typedef struct
   struct tm Date;
   int    Department;
   int    DeviceCode;
-  char*  DeviceCodeDescription;
+  const char*  DeviceCodeDescription;
   double DiscountOnCheck;
   char*  DocumentName;
   int    DocumentNumber;
@@ -148,11 +148,11 @@ typedef struct
   double DozeInMoney;
   int    DrawerNumber;
   int    ECRAdvancedMode;
-  char*  ECRAdvancedModeDescription;
+  const char*  ECRAdvancedModeDescription;
   int    ECRBuild;
   int    ECRMode;
   int    ECRMode8Status;
-  char*  ECRModeDescription;
+  const char*  ECRModeDescription;
   struct tm ECRSoftDate;
   char*  ECRSoftVersion;
   int    EKLZIsPresent;
@@ -209,7 +209,7 @@ typedef struct
   int    ReportType;
   int    RegistrationNumber;
   int    ResultCode;
-  char*  ResultCodeDescription;
+  const char*  ResultCodeDescription;
   int    RKNumber;
   char*  RNM;
   int    RoughValve;
