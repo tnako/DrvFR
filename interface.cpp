@@ -315,14 +315,14 @@ int PrintString(void)
 {
   parameter  p;
   answer     a;
-  p.len	  = 41;
+  p.len	  = 49;
 
   if(!connected) return -1;
 
   p.buff[0]  = (fr.UseJournalRibbon == true) ? 1 : 0;
   p.buff[0] |= (fr.UseReceiptRibbon == true) ? 2 : 0;
 
-  strncpy((char*)&p.buff+1, (char*)fr.StringForPrinting, 40);
+  strncpy((char*)&p.buff+1, (char*)fr.StringForPrinting, 48);
 
   if(sendcommand(PRINT_STRING, fr.Password, &p) < 0) return -1;
   if(readanswer(&a) < 0) return -1;
