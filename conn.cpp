@@ -62,127 +62,127 @@ static struct timeval timeout;
 #ifdef DEBUG
 void PrintComm(command* cmd)
 {
-  char *s;
-  char *t;
+    char *s;
+    char *t;
 
-  s = (char*)malloc(cmd->len*3*3);
-  t = (char*)malloc(5);
-  memset(s, 0, cmd->len*3*3);
-  for(int i = 0; i < cmd->len; i++)
-  {
-    sprintf(t, "%02X|",(int)cmd->buff[i]);
-    s = strcat(s,t);
-  }
-  s = strcat(s,"\n");
-  perror(s);
+    s = (char*)malloc(cmd->len*3*3);
+    t = (char*)malloc(5);
+    memset(s, 0, cmd->len*3*3);
+    for(int i = 0; i < cmd->len; i++)
+    {
+        sprintf(t, "%02X|",(int)cmd->buff[i]);
+        s = strcat(s,t);
+    }
+    s = strcat(s,"\n");
+    perror(s);
 };
 #endif
 //--------------------------------------------------------------------------------------
 void settimeout(int msec)
 {
-  if(msec <= 1000)
-  {
-    timeout.tv_sec = 0;
-    timeout.tv_usec = msec * 1000;
-  }
-  else
-  {
-    timeout.tv_sec = msec/1000;
-    timeout.tv_usec = (msec - timeout.tv_sec * 1000) * 1000;
-  };
+    if(msec <= 1000)
+    {
+        timeout.tv_sec = 0;
+        timeout.tv_usec = msec * 1000;
+    }
+    else
+    {
+        timeout.tv_sec = msec/1000;
+        timeout.tv_usec = (msec - timeout.tv_sec * 1000) * 1000;
+    };
 }
 //--------------------------------------------------------------------------------------
 int opendev(fr_prop *f)
 {
-  prop = f;
-  while ((devfile = open(devname(prop->ComPortNumber), O_NONBLOCK | O_RDWR, 0)) < 0)
-  if (errno != EINTR) return -1;
-  if ((fdflags = fcntl(devfile, F_GETFL)) == -1 || fcntl(devfile, F_SETFL, fdflags & ~O_NONBLOCK) < 0) return -1;
-  set_up_tty(devfile);
-  FD_ZERO (&set);
-  FD_SET (devfile, &set);
-  settimeout(prop->Timeout);
-  return 1;
+    prop = f;
+    while ((devfile = open(devname(prop->ComPortNumber), O_NONBLOCK | O_RDWR, 0)) < 0)
+        if (errno != EINTR) return -1;
+    if ((fdflags = fcntl(devfile, F_GETFL)) == -1 || fcntl(devfile, F_SETFL, fdflags & ~O_NONBLOCK) < 0) return -1;
+    set_up_tty(devfile);
+    FD_ZERO (&set);
+    FD_SET (devfile, &set);
+    settimeout(prop->Timeout);
+    return 1;
 }
 //--------------------------------------------------------------------------------------
 int set_up_tty (int tty_fd)
 {
-  int speed;
-  struct termios tios;
+    int speed;
+    struct termios tios;
 
-  if (tcgetattr(tty_fd, &tios) < 0) return -1;
+    if (tcgetattr(tty_fd, &tios) < 0) return -1;
 
-  tios.c_cflag     &= ~(CSIZE | CSTOPB | PARENB | CLOCAL);
-  tios.c_cflag     |= CS8 | CREAD | HUPCL;
+    tios.c_cflag     &= ~(CSIZE | CSTOPB | PARENB | CLOCAL);
+    tios.c_cflag     |= CS8 | CREAD | HUPCL;
 
-  tios.c_iflag      = IGNBRK | IGNPAR;
-  tios.c_oflag      = 0;
-  tios.c_lflag      = 0;
-  tios.c_cc[VMIN]   = 1;
-  tios.c_cc[VTIME]  = 0;
+    tios.c_iflag      = IGNBRK | IGNPAR;
+    tios.c_oflag      = 0;
+    tios.c_lflag      = 0;
+    tios.c_cc[VMIN]   = 1;
+    tios.c_cc[VTIME]  = 0;
 
-  tios.c_cflag &= ~CRTSCTS;
+    tios.c_cflag &= ~CRTSCTS;
 
-  speed = LineSpeedVal[prop->BaudRate];
-  if (speed)
+    speed = LineSpeedVal[prop->BaudRate];
+    if (speed)
     {
-      cfsetospeed (&tios, speed);
-      cfsetispeed (&tios, speed);
+        cfsetospeed (&tios, speed);
+        cfsetispeed (&tios, speed);
     }
 
-  if (tcsetattr(tty_fd, TCSAFLUSH, &tios) < 0) return -1;
+    if (tcsetattr(tty_fd, TCSAFLUSH, &tios) < 0) return -1;
 
-  return 1;
+    return 1;
 }
 //--------------------------------------------------------------------------------------
 int determsp(int spval)
 {
-  for(int i=0; i<7; i++) if((unsigned)spval == LineSpeedVal[i]) return i;
-  return 0;
+    for(int i=0; i<7; i++) if((unsigned)spval == LineSpeedVal[i]) return i;
+    return 0;
 }
 //--------------------------------------------------------------------------------------
 int closedev(void)
 {
-  return close(devfile);
+    return close(devfile);
 }
 //--------------------------------------------------------------------------------------
 int input_timeout(int msec)
 {
-  if(msec > 0 ) settimeout(msec);
-  connected = TEMP_FAILURE_RETRY (select (FD_SETSIZE, &set, NULL, NULL, &timeout));
-  return connected;
+    if(msec > 0 ) settimeout(msec);
+    connected = TEMP_FAILURE_RETRY (select (FD_SETSIZE, &set, NULL, NULL, &timeout));
+    return connected;
 }
 //--------------------------------------------------------------------------------------
 unsigned short int LRC(unsigned char *str, int len, int offset = 0)
 {
-  int i;
-  unsigned char *ptr;
-  unsigned char ch = 0;
+    int i;
+    unsigned char *ptr;
+    unsigned char ch = 0;
 
-  ptr = str + offset;
-  for(i=0; i<len; i++)ch ^= ptr[i];
-  return ch;
+    ptr = str + offset;
+    for(i=0; i<len; i++)ch ^= ptr[i];
+    return ch;
 }
 //--------------------------------------------------------------------------------------
 int sendNAK(void)
 {
-  char buff[2];
-  buff[0] = NAK;
-  return write(devfile,buff,1);
+    char buff[2];
+    buff[0] = NAK;
+    return write(devfile,buff,1);
 }
 //--------------------------------------------------------------------------------------
 int sendACK(void)
 {
-  char buff[2];
-  buff[0] = ACK;
-  return write(devfile,buff,1);
+    char buff[2];
+    buff[0] = ACK;
+    return write(devfile,buff,1);
 }
 //--------------------------------------------------------------------------------------
 int sendENQ(void)
 {
-  char buff[2];
-  buff[0] = ENQ;
-  return write(devfile,buff,1);
+    char buff[2];
+    buff[0] = ENQ;
+    return write(devfile,buff,1);
 }
 //--------------------------------------------------------------------------------------
 int composecomm(command *cmd, int comm, int pass, parameter *param)
@@ -195,10 +195,10 @@ int composecomm(command *cmd, int comm, int pass, parameter *param)
     cmd->buff[1] = len;
     cmd->buff[2] = comm;
     if(len >= 5)
-      {
+    {
         memcpy(cmd->buff + 3, &pass, sizeof(int));
         if(param->len > 0) memcpy(cmd->buff + 7, param->buff, param->len);
-      };
+    };
     cmd->buff[len + 2] = LRC(cmd->buff, len + 1, 1);
     cmd->len = len + 3;
     return 1;
@@ -206,88 +206,88 @@ int composecomm(command *cmd, int comm, int pass, parameter *param)
 //--------------------------------------------------------------------------------------
 unsigned short int readbyte(int msec = prop->Timeout)
 {
-  unsigned char readbuff[2] = "";
-  if(input_timeout(msec) == 0) return 0;
-  if(read(devfile, readbuff, 1) > 0) return (unsigned int) readbuff[0];
-  else return 0;
+    unsigned char readbuff[2] = "";
+    if(input_timeout(msec) == 0) return 0;
+    if(read(devfile, readbuff, 1) > 0) return (unsigned int) readbuff[0];
+    else return 0;
 }
 //--------------------------------------------------------------------------------------
 int readbytes(unsigned char *buff, int len)
 {
-  int i;
-  for(i = 0; i < len; i++)
+    int i;
+    for(i = 0; i < len; i++)
     {
-      if(input_timeout(prop->Timeout) == 1)
-         if(read(devfile, buff+i, 1) == -1) return -1;
+        if(input_timeout(prop->Timeout) == 1)
+            if(read(devfile, buff+i, 1) == -1) return -1;
     };
-  return len;
+    return len;
 }
 //--------------------------------------------------------------------------------------
 int checkstate(void)
 {
-  short int repl;
+    short int repl;
 
-  sendENQ();
-  repl = readbyte(1000);
-  if(connected == 0)return -1;
-  switch(repl)
+    sendENQ();
+    repl = readbyte(1000);
+    if(connected == 0)return -1;
+    switch(repl)
     {
-      case NAK:
+    case NAK:
         return NAK;
-      case ACK:
+    case ACK:
         return ACK;
-      default:
+    default:
         return -1;
     };
 };
 //--------------------------------------------------------------------------------------
 int sendcommand(int comm, int pass, parameter *param)
 {
-  short int repl, tries;
-  command cmd;
-  composecomm(&cmd, comm, pass, param);
+    short int repl, tries;
+    command cmd;
+    composecomm(&cmd, comm, pass, param);
 #ifdef DEBUG
-  PrintComm(&cmd);
+    PrintComm(&cmd);
 #endif
 
-  int state = 0;
-  answer      a;
+    int state = 0;
+    answer      a;
 
-  tries = 1;
-  bool flag = false;
-  while(tries < MAX_TRIES && !flag)
-  {
-    state = checkstate();
-    switch(state)
+    tries = 1;
+    bool flag = false;
+    while(tries < MAX_TRIES && !flag)
     {
-      case NAK:
-        flag = true;
-        break;
-      case ACK:
-        readanswer(&a);
-        //clearanswer();
-        flag = true;
-        break;
-      case -1:
-        tries++;
-      };
-  };
-
-  if (!flag)
-      return -1;
-
-  for(tries = 1; tries <= MAX_TRIES; tries++)
-    {
-      if(write(devfile,cmd.buff,cmd.len) != -1)
+        state = checkstate();
+        switch(state)
         {
-          repl = readbyte(prop->Timeout * 100);
-          if(connected != 0)
+        case NAK:
+            flag = true;
+            break;
+        case ACK:
+            readanswer(&a);
+            //clearanswer();
+            flag = true;
+            break;
+        case -1:
+            tries++;
+        };
+    };
+
+    if (!flag)
+        return -1;
+
+    for(tries = 1; tries <= MAX_TRIES; tries++)
+    {
+        if(write(devfile,cmd.buff,cmd.len) != -1)
+        {
+            repl = readbyte(prop->Timeout * 100);
+            if(connected != 0)
             {
-              if(repl == ACK) return 1;
+                if(repl == ACK) return 1;
             };
         };
     };
-  return -1;
+    return -1;
 };
 //--------------------------------------------------------------------------------------
 int readanswer(answer *ans)
@@ -330,33 +330,34 @@ int readanswer(answer *ans)
 //--------------------------------------------------------------------------------------
 int clearanswer(void)
 {
-  short int len;
-  unsigned char buf[0x100];
+    short int len;
+    unsigned char buf[0x100];
 
-  sendENQ();
-  len = readbytes(buf, 0x100);
-  if(connected == 1 && len > 0)
-  {
-    if(buf[0] != NAK)
+    sendENQ();
+    len = readbytes(buf, 0x100);
+    if(connected == 1 && len > 0)
     {
-      sendACK();
-      return 1;
+        if(buf[0] != NAK)
+        {
+            sendACK();
+            return 1;
+        };
     };
-  };
-  return 0;
+    return 0;
 }
 //--------------------------------------------------------------------------------------
 char* devname(int number)
 {
-  static char *devn[5] =
-  {
-    "/dev/null",
-    "/dev/ttyS0",
-    "/dev/ttyS1",
-    "/dev/ttyS2",
-    "/dev/ttyS3"
-  };
-  if(number > 0 && number < 5) return devn[number];
-  return devn[0];
+    static char *devn[6] =
+    {
+        "/dev/null",
+        "/dev/ttyS0",
+        "/dev/ttyS1",
+        "/dev/ttyS2",
+        "/dev/ttyS3",
+        "/dev/ttyUSB0"
+    };
+    if(number > 0 && number < 6) return devn[number];
+    return devn[0];
 }
 //--------------------------------------------------------------------------------------
