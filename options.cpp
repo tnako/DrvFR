@@ -53,15 +53,16 @@ static fr_func *fr;
  * Implementation of procedures                           *
  **********************************************************/
 
-int readrcfile(char *fname)
+int readrcfile(const char *fname)
 {
   int rcfile;
-  ssize_t bytesread;
   char *filebuff;
-  filebuff = (char*)malloc(MAX_LEN);
 
   if((rcfile = open(fname, O_RDONLY)) == -1)	return -1;
-  if((bytesread = read(rcfile,filebuff,MAX_LEN)) > 0)	parse(filebuff);
+  
+  filebuff = (char*)malloc(MAX_LEN);
+  if((read(rcfile,filebuff,MAX_LEN)) > 0)	parse(filebuff);
+  
   close(rcfile);
   free(filebuff);
   return 1;
@@ -102,18 +103,22 @@ void setdrvconf(char *param, char *val)
 //-----------------------------------------------------------------------------
 void parse(char *str)
 {
-  char *param, *val, *word, *tmp, *tmp1;
+  char *word, *tmp;
   char delim[] = " .,;:!-\n";
+  char **saveptr;
 
   tmp = strdup(str);
-  word = strtok(tmp,delim);
+  word = strtok_r(tmp,delim,saveptr);
   do
   {
-    tmp1  = strdup(word);
-    param = strsep(&tmp1,"=");
-    val   = strsep(&tmp1,"=");
+    char *tmp1  = strdup(word);
+    char *param = strsep(&tmp1,"=");
+    char *val   = strsep(&tmp1,"=");
     setdrvconf(param, val);
-  } while ((word = strtok(NULL,delim)) != NULL);
+    free(tmp1);
+  } while ((word = strtok_r(NULL,delim,saveptr)) != NULL);
+  
+  free(tmp);
 }
 //-----------------------------------------------------------------------------
 int readoptions (void)

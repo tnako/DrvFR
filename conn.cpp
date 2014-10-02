@@ -15,7 +15,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+    #define _GNU_SOURCE
+#endif
 
 #include <string.h>
 #include <stdio.h>
@@ -41,7 +43,7 @@ int set_up_tty (int);
 int input_timeout(int);
 int composecomm(command*, int, unsigned char*);
 void settimeout(int);
-char* devname(int number);
+const char* devname(int number);
 unsigned short int readbyte(int);
 unsigned short int LRC(unsigned char*, int, int);
 
@@ -75,6 +77,8 @@ void PrintComm(command* cmd)
     }
     s = strcat(s,"\n");
     perror(s);
+    free(s);
+    free(t);
 };
 #endif
 //--------------------------------------------------------------------------------------
@@ -250,14 +254,13 @@ int sendcommand(int comm, int pass, parameter *param)
     PrintComm(&cmd);
 #endif
 
-    int state = 0;
     answer      a;
 
     tries = 1;
     bool flag = false;
     while(tries < MAX_TRIES && !flag)
     {
-        state = checkstate();
+        int state = checkstate();
         switch(state)
         {
         case NAK:
@@ -292,10 +295,10 @@ int sendcommand(int comm, int pass, parameter *param)
 //--------------------------------------------------------------------------------------
 int readanswer(answer *ans)
 {
-    short int  len, crc, tries, repl;
+    short int  len, crc, tries;
     for(tries = 0; tries < MAX_TRIES; tries++)
     {
-        repl = readbyte(prop->Timeout * 100);
+        short int repl = readbyte(prop->Timeout * 100);
         if(connected == 1)
         {
             if(repl == STX)
@@ -346,9 +349,9 @@ int clearanswer(void)
     return 0;
 }
 //--------------------------------------------------------------------------------------
-char* devname(int number)
+const char* devname(int number)
 {
-    static char *devn[6] =
+    const char *devn[6] =
     {
         "/dev/null",
         "/dev/ttyS0",

@@ -15,7 +15,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+    #define _GNU_SOURCE
+#endif
 
 #include <string.h>
 #include <stdlib.h>
@@ -220,7 +222,6 @@ void DefineECRModeDescription(void)
 int Connect(void)
 {
   int tries = 0;
-  int state = 0;
   answer      a;
 
   if(connected) closedev();
@@ -232,7 +233,7 @@ int Connect(void)
   };
   while(tries < MAX_TRIES)
   {
-    state = checkstate();
+    int state = checkstate();
     switch(state)
     {
       case NAK:
