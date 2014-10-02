@@ -35,7 +35,7 @@ const char *LineSpeed[] =
  * Local functions & procedures                           *
  **********************************************************/
 
-int  readrcfile(char*);
+int  readrcfile(const char*);
 void parse(char*);
 void setdrvconf(char*, char*);
 
@@ -105,10 +105,10 @@ void parse(char *str)
 {
   char *word, *tmp;
   char delim[] = " .,;:!-\n";
-  char **saveptr;
+  char *saveptr;
 
   tmp = strdup(str);
-  word = strtok_r(tmp,delim,saveptr);
+  word = strtok_r(tmp,delim,&saveptr);
   do
   {
     char *tmp1  = strdup(word);
@@ -116,7 +116,7 @@ void parse(char *str)
     char *val   = strsep(&tmp1,"=");
     setdrvconf(param, val);
     free(tmp1);
-  } while ((word = strtok_r(NULL,delim,saveptr)) != NULL);
+  } while ((word = strtok_r(NULL,delim,&saveptr)) != NULL);
   
   free(tmp);
 }
@@ -130,7 +130,7 @@ int readoptions (void)
   fr = drvfrInitialize();
   homedir  = getenv("HOME");
   etc_res  = readrcfile("/etc/drvfrrc");
-  home_res = readrcfile(strcat(homedir,"/.drvfrrc"));
+  home_res = readrcfile((const char*)strcat(homedir,"/.drvfrrc"));
   if(etc_res == -1 && home_res == -1) return -1;
   fr->prop->ComPortNumber = t_devnum;
   fr->prop->Password = t_passwd;

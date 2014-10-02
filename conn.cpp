@@ -72,10 +72,9 @@ void PrintComm(command* cmd)
     memset(s, 0, cmd->len*3*3);
     for(int i = 0; i < cmd->len; i++)
     {
-        sprintf(t, "%02X|",(int)cmd->buff[i]);
+        sprintf(t, "%02X ",(int)cmd->buff[i]);
         s = strcat(s,t);
     }
-    s = strcat(s,"\n");
     perror(s);
     free(s);
     free(t);
