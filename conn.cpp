@@ -29,7 +29,6 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include "conn.h"
-//#include "options.h"
 #include "drvfr.h"
 
 /**********************************************************

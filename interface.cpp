@@ -26,7 +26,6 @@
 #include <math.h>
 #include "drvfr.h"
 #include "interface.h"
-//#include "options.h"
 #include "conn.h"
 #include "errdefs.h"
 
@@ -155,7 +154,6 @@ fr_func *drvfrInitialize(void)
     fr.LineData       = (unsigned char*)malloc(41);
     fr.ResultCodeDescription = "";
     initialized = true;
-    //if(readoptions() == -1) perror("Failed reading drvfrrc file");
   };
   return &fn;
 }
