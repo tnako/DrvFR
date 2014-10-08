@@ -20,7 +20,7 @@
 #include "drvfr.h"
 
 #define MAX_TRIES	10
-#define DEBUG
+// #define DEBUG
 
 #define ENQ 			0x05
 #define STX 			0x02
