@@ -601,7 +601,7 @@ int PrintDocumentTitle(void)
   if(!connected) return -1;
 
   strncpy((char*)p.buff, (char*)fr.DocumentName, 30);
-  memcpy(&p.buff+30, &fr.DocumentNumber, 2);
+  memcpy(p.buff+30, &fr.DocumentNumber, 2);
 
   if(sendcommand(PRINT_DOCUMENT_TITLE, fr.Password, &p) < 0) return -1;
   if(readanswer(&a) < 0) return -1;
